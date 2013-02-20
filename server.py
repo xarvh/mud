@@ -2,7 +2,7 @@ import select
 from socket import *
 #import act_comm
 #import create
-import classes
+import player
 
 addr = ('', 4000)
 
@@ -28,7 +28,6 @@ def send_to(pg, string):
 def chat(pg, argument):
   send_to_all(pg.client, "%s chatta %s\n" % (pg.name, argument))
 
-
 def new_char(pg):
   del nome[:]
   nome.append("")
@@ -37,28 +36,8 @@ def new_char(pg):
     if ca == '\n':
       break
     nome.append(ca)
-
+  new_player.name = ''.join(nome[1:])
   return 
-
-def handler(client):
-  classes.char.client = client
-  classes.char.name = ''.join(nome[1:])
-  input = client.recv(4096).strip()
-  args = input.split(" ",1)
-  command = args[0]
-  string = ''.join(args[1:])
-  if(command == ''):
-    return ''
-  if('chatta'.startswith(command)):
-#    act_comm.chat(client, string)
-     chat(classes.char, string)
-     return
-  if('qui'.startswith(command)):
-    client.send("Devi scrivere 'quit' per intero\n")
-    return ''
-  if('quit'.startswith(command)):
-    client.send("comando trovato!\n")
-    return 'kill'
 
 while True:
   sockets = [server] + clients
@@ -67,14 +46,15 @@ while True:
   for sock in readable: 
     if sock == server:
       client, addr = server.accept()
+      new_player = player.Player(sock, addr)
       print "Nuova Connessione: %s" % str(addr)
       client.send("Benvenuto!\n")
       clients.append(client)
       new_char(client)
 #      client.send ("Ciao %s\n" % classes.char.name)
     else:
-      if handler(sock) == 'kill':
-        print "%s Disconnesso: %s" % (classes.char.name, str(addr))
+      if new_player.handler(sock) == 'kill':
+        print "%s Disconnesso: %s" % (new_player.name, str(addr))
         clients.remove(sock)
         sock.close()
     break
