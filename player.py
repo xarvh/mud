@@ -3,19 +3,17 @@ class Player:
   def __init__(self, connection):
     self.socket, self.addr = connection
     self.name = ''
+    self.socket.send('Benvenuto!\nDigita il tuo nome:\n')
 
 
   def handler(self, players):
 
-    msg = self.socket.recv(4096).strip() + ' '
-    command, args = msg.split(" ", 1)
-
+    msg = self.socket.recv(4096).strip()
     if not self.name:
-      if command == 'nome':
-        self.name = args.strip()
-      else:
-        self.socket.send('usa il comando "nome" seguito dal tuo nome.\n')
+      self.name = msg
       return
+
+    command, args = (msg+' ').split(" ", 1)
 
     if(command == ''):
       return
