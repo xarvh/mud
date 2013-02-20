@@ -1,24 +1,35 @@
 class Player:
-  def __init__(self, socket, addr):
-    self.socket = socket
+
+  def __init__(self, connection):
+    self.socket, self.addr = connection
     self.name = ''
 
-  def handler(client):
- #   classes.char.client = client
- #   classes.char.name = ''.join(nome[1:])
-    input = client.recv(4096).strip()
-    args = input.split(" ",1)
-    command = args[0]
-    string = ''.join(args[1:])
+
+  def handler(self, players):
+
+    msg = self.socket.recv(4096).strip() + ' '
+    command, args = msg.split(" ", 1)
+
+    if not self.name:
+      if command == 'nome':
+        self.name = args.strip()
+      else:
+        self.socket.send('usa il comando "nome" seguito dal tuo nome.\n')
+      return
+
     if(command == ''):
-      return ''
+      return
+
     if('chatta'.startswith(command)):
-#      act_comm.chat(client, string)
-       chat(classes.char, string)
-       return
+      msg = "%s chatta %s\n" % (self.name, args)
+      for p in players: p.socket.send(msg)
+      return
+
     if('qui'.startswith(command)):
-      client.send("Devi scrivere 'quit' per intero\n")
-      return ''
+      self.socket.send("Devi scrivere 'quit' per intero\n")
+      return
+
     if('quit'.startswith(command)):
-      client.send("comando trovato!\n")
+      self.socket.send("comando trovato!\n")
       return 'kill'
+

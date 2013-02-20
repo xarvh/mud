@@ -30,25 +30,25 @@ players = []
 #  return 
 
 
-def server_loop(listener)
+def server_loop(listener):
   sockets = [listener] + [p.socket for p in players]
   readable, writeable, exceptional = select.select(sockets, [], [])
 
-  if listener in readable
+  if listener in readable:
     new_player = player.Player(listener.accept())
     players.append(new_player)
 
     print "Nuova connessione: %s" % str(new_player.addr)
 
-  for player in players:
-    if player.socket not in readable: continue
-    if player.handler(players) == 'kill':
-        print "%s Disconnesso: %s" % (new_player.name, str(addr))
-        player.socket.close()
-        players.remove(player)
+  for p in players:
+    if p.socket not in readable: continue
+    if p.handler(players) == 'kill':
+        print "%s Disconnesso: %s" % (p.name, str(addr))
+        p.socket.close()
+        players.remove(p)
 
 
-if __module__ == '__main__':
+if __name__ == '__main__':
   server = socket(AF_INET, SOCK_STREAM)
   server.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
   server.bind(addr)
