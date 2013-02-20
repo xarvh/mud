@@ -1,0 +1,4 @@
+class char:
+ client = ""
+ name = ""
+
